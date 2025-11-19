@@ -1,77 +1,133 @@
 # persona-hexagonal
 
-This project uses Quarkus, the Supersonic Subatomic Java Framework.
+Este proyecto usa **Quarkus**, el framework Java supersónico y subatómico.
 
-If you want to learn more about Quarkus, please visit its website: <https://quarkus.io/>.
+Más información sobre Quarkus: https://quarkus.io/
 
-## Running the application in dev mode
+**Ejemplo 100 % correcto y limpio de Arquitectura Hexagonal (Ports & Adapters) con Quarkus 3.x**  
+Dominio puro • Inversión total de dependencias • Adaptadores bien separados • Cambio de base de datos sin tocar el núcleo
+```
+## Estructura del proyecto (Hexagonal real)
+src/main/java/org/edwin/
+├── aplicacion/               ← Casos de uso / Servicios de aplicación
+│   └── PersonaService.java
+├── dominio/
+│   ├── modelo/               ← Entidades de dominio puro (sin JPA, sin Quarkus)
+│   │   └── Persona.java
+│   └── repositorio/          ← PUERTOS (interfaces del dominio)
+│       └── PersonaRepository.java
+└── infraestructura/
+├── adaptador/
+│   ├── entrada/web/      ← Adaptador de entrada (REST)
+│   │   ├── dto/
+│   │   ├── mapper/
+│   │   └── PersonaResource.java
+│   └── salida/persistence/ ← Adaptador de salida (JPA + Panache)
+│       ├── entity/
+│       └── JpaPersonaRepository.java
+```
 
-You can run your application in dev mode that enables live coding using:
+
+### ¿Qué aporta esta arquitectura?
+
+- Dominio independiente de frameworks  
+- Casos de uso testables sin servidor  
+- Sustituir JPA por MongoDB, DynamoDB o archivos sin tocar el dominio  
+- REST es un adaptador, no parte del núcleo  
+- Todo desacoplado por interfaces (PUERTOS)
+
+---
+
+## 🛠 Tecnologías Utilizadas
+
+### Core
+- **Java 21**
+- **Quarkus 3.27.x**
+- **Maven**
+
+### Persistencia
+- Hibernate ORM + Panache  
+- Base de datos H2 (modo desarrollo)
+
+### REST & Serialización
+- Quarkus RESTEasy Reactive  
+- JSON-B  
+- Bean Validation  
+
+### Utilidades
+- MapStruct  
+- Lombok  
+
+### Documentación
+- OpenAPI 3  
+- Swagger UI  
+
+### Testing
+- JUnit 5  
+- RestAssured  
+
+---
+
+## 🚀 Ejecutar en modo desarrollo
 
 ```shell script
 ./mvnw quarkus:dev
 ```
 
-> **_NOTE:_**  Quarkus now ships with a Dev UI, which is available in dev mode only at <http://localhost:8080/q/dev/>.
+Accesos disponibles:
+```
+| Recurso    | URL                                                                  |
+| ---------- | -------------------------------------------------------------------- |
+| API        | [http://localhost:8080](http://localhost:8080)                       |
+| Dev UI     | [http://localhost:8080/q/dev](http://localhost:8080/q/dev)           |
+| Swagger UI | [http://localhost:8080/swagger-ui](http://localhost:8080/swagger-ui) |
+```
 
-## Packaging and running the application
-
-The application can be packaged using:
-
+## Empaquetar y ejecutar la aplicación
 ```shell script
 ./mvnw package
 ```
+```
+Endpoints disponibles
 
-It produces the `quarkus-run.jar` file in the `target/quarkus-app/` directory.
-Be aware that it’s not an _über-jar_ as the dependencies are copied into the `target/quarkus-app/lib/` directory.
+Método      URL                         Descripción
+GET         /personas                   Lista todas las personas
+GET         /personas/{id}              Busca por ID
+POST        /personas                   Crea nueva persona
+PUT         /personas/{id}              Actualiza persona
+DELETE      /personas/{id}              Elimina persona
+GET         /personas/sexo/{sexo}       Filtra por sexo (M/F)
+```
+## Guías relacionadas
 
-The application is now runnable using `java -jar target/quarkus-app/quarkus-run.jar`.
+REST con Hibernate ORM Panache → https://quarkus.io/guides/rest-data-panache
+JSON-B → https://quarkus.io/guides/rest#json-serialisation
+JDBC H2 → https://quarkus.io/guides/datasource
+Validación → https://quarkus.io/guides/validation
+OpenAPI + Swagger UI → https://quarkus.io/guides/openapi-swaggerui
 
-If you want to build an _über-jar_, execute the following command:
+## 📝 Configuración principal
 
-```shell script
-./mvnw package -Dquarkus.package.jar.type=uber-jar
+src/main/resources/application.properties
+```
+quarkus.datasource.db-kind=h2
+quarkus.datasource.jdbc.url=jdbc:h2:mem:personadb
+quarkus.hibernate-orm.database.generation=drop-and-create
+quarkus.hibernate-orm.sql-load-script=import.sql
+
+quarkus.swagger-ui.always-include=true
+quarkus.swagger-ui.path=/swagger-ui
 ```
 
-The application, packaged as an _über-jar_, is now runnable using `java -jar target/*-runner.jar`.
-
-## Creating a native executable
-
-You can create a native executable using:
-
-```shell script
-./mvnw package -Dnative
+## 📚 Documentación API
+```
+| Recurso      | URL                                                                                        |
+| ------------ | ------------------------------------------------------------------------------------------ |
+| Swagger UI   | [http://localhost:8080/swagger-ui](http://localhost:8080/swagger-ui)                       |
+| OpenAPI JSON | [http://localhost:8080/q/openapi](http://localhost:8080/q/openapi)                         |
+| OpenAPI YAML | [http://localhost:8080/q/openapi?format=yaml](http://localhost:8080/q/openapi?format=yaml) |
 ```
 
-Or, if you don't have GraalVM installed, you can run the native executable build in a container using:
 
-```shell script
-./mvnw package -Dnative -Dquarkus.native.container-build=true
-```
-
-You can then execute your native executable with: `./target/persona-hexagonal-1.0.0-SNAPSHOT-runner`
-
-If you want to learn more about building native executables, please consult <https://quarkus.io/guides/maven-tooling>.
-
-## Related Guides
-
-- REST resources for Hibernate ORM with Panache ([guide](https://quarkus.io/guides/rest-data-panache)): Generate Jakarta REST resources for your Hibernate Panache entities and repositories
-- REST JSON-B ([guide](https://quarkus.io/guides/rest#json-serialisation)): JSON-B serialization support for Quarkus REST. This extension is not compatible with the quarkus-resteasy extension, or any of the extensions that depend on it.
-- JDBC Driver - H2 ([guide](https://quarkus.io/guides/datasource)): Connect to the H2 database via JDBC
-- Hibernate Validator ([guide](https://quarkus.io/guides/validation)): Validate object properties (field, getter) and method parameters for your beans (REST, CDI, Jakarta Persistence)
-- SmallRye OpenAPI ([guide](https://quarkus.io/guides/openapi-swaggerui)): Document your REST APIs with OpenAPI - comes with Swagger UI
-
-## Provided Code
-
-### REST Data with Panache
-
-Generating Jakarta REST resources with Panache
-
-[Related guide section...](https://quarkus.io/guides/rest-data-panache)
-
-
-### REST
-
-Easily start your REST Web Services
-
-[Related guide section...](https://quarkus.io/guides/getting-started-reactive#reactive-jax-rs-resources)
+Hecho con mucho cariño en El Salvador – Noviembre 2025
+¡Uno de los pocos proyectos en español que realmente cumple Arquitectura Hexagonal como debe ser!

@@ -18,10 +18,10 @@ public class PersonaRequestDTO {
     @Size(min = 2, max = 50, message = "El nombre debe tener entre 2 y 50 caracteres")
     private String apellido;
 
-    @NotBlank(message = "La edad no puede estar vacio")
+    @NotNull(message = "La edad no puede estar vacio")
     @Min(value = 0, message = "La edad debe ser mayor a 0")
     @Max(value=120, message = "La edad debe ser menor a 120")
-    private int edad;
+    private Integer edad;
 
     @NotBlank(message = "El sexo es obligatorio")
     @Pattern(regexp = "^(M|F)$", message = "El sexo debe ser 'M' (Masculino) o 'F' (Femenino)")
