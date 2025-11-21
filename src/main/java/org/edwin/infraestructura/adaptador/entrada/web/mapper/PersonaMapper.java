@@ -9,19 +9,19 @@ import org.mapstruct.Mapping;
 import org.mapstruct.MappingTarget;
 
 @Mapper(componentModel = "cdi")
-public interface PersonaMapper {
+public interface PersonaMapper { // Mapper de MapStruct
 
     @Mapping(target = "id", ignore = true)
     PersonaEntity toEntity(PersonaRequestDTO dto);
 
-    @Mapping(target = "id", ignore = true)
-    PersonaEntity toEntity(Persona persona);
+    @Mapping(target = "id", source = "id")   // ← ahora id es Long directamente
+    PersonaEntity toEntity(Persona persona); //convierto dominio a entidad para guardar datos
 
     @Mapping(target = "id", ignore = true)
     void updateEntityFromDomain(Persona persona, @MappingTarget PersonaEntity entity);
 
-    Persona toDomain(PersonaEntity entity);  // MapStruct lo hace automático
+    Persona toDomain(PersonaEntity entity);  // convierte entidad a dominio puro para leer datos
 
     @Mapping(target = "id", source = "id")   // ← ahora id es Long directamente
-    PersonaResponseDTO toResponseDto(Persona persona);
+    PersonaResponseDTO toResponseDto(Persona persona); //convierte dominio a dto para responder al cliente respuesta http
 }

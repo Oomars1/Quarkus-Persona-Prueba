@@ -1,6 +1,5 @@
 package org.edwin.infraestructura.adaptador.salida.persistence.entity;
 
-import io.quarkus.hibernate.orm.panache.PanacheEntity;
 import io.quarkus.hibernate.orm.panache.PanacheEntityBase;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
@@ -14,7 +13,7 @@ import lombok.NoArgsConstructor;
 @Data
 @Entity
 @EqualsAndHashCode(callSuper = true)
-public class PersonaEntity extends PanacheEntityBase {
+public class PersonaEntity extends PanacheEntityBase { // Entidad JPA se encarga de mapear la tabla de la base de datos
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;

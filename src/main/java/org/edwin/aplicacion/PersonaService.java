@@ -5,18 +5,18 @@ import jakarta.transaction.Transactional;
 import jakarta.ws.rs.NotFoundException;
 import org.edwin.dominio.modelo.Persona;
 import org.edwin.dominio.repositorio.PersonaRepository;
-import org.edwin.infraestructura.adaptador.entrada.web.dto.PersonaRequestDTO;
-import org.edwin.infraestructura.adaptador.entrada.web.mapper.PersonaMapper;
 
 import java.util.List;
 
+import static java.util.Objects.requireNonNull;
+
 @ApplicationScoped
-public class PersonaService {
+public class PersonaService { // Servicio de Aplicación (Ahora 100% puro)
 
     private final PersonaRepository repository;
 
     public PersonaService(PersonaRepository repository) {
-        this.repository = repository;
+        this.repository = requireNonNull(repository);
     }
 
     public List<Persona> buscarTodasLasPersonas() {
@@ -29,39 +29,23 @@ public class PersonaService {
     }
 
     @Transactional
-    public Persona crear(PersonaRequestDTO dto) {
-        Persona persona = Persona.crear(
-                dto.getNombre(),
-                dto.getApellido(),
-                dto.getEdad(),
-                dto.getSexo()
-        );
-        repository.guardar(persona);
-        return persona;
+    public Persona crear(String nombre, String apellido, Integer edad, String sexo) {
+        // La validación de nulls ahora ocurre en el Resource o se delega a las entidades de dominio
+        Persona persona = Persona.crear(nombre, apellido, edad, sexo);
+        return repository.guardar(persona);
     }
 
     @Transactional
-    public Persona actualizar(Long id, PersonaRequestDTO dto) {
+    public Persona actualizar(Long id, String nombre, String apellido, Integer edad, String sexo) {
         Persona persona = buscarPorId(id);
-
-        // Si tu Persona tiene método actualizar()
-        persona.actualizar(dto.getNombre(), dto.getApellido(), dto.getEdad(), dto.getSexo());
-
-        // Si usas Lombok @Builder(toBuilder = true), también puedes hacer:
-        // persona = persona.toBuilder()
-        //         .nombre(dto.getNombre())
-        //         .apellido(dto.getApellido())
-        //         .edad(dto.getEdad())
-        //         .sexo(dto.getSexo())
-        //         .build();
-
-        repository.guardar(persona);
-        return persona;
+        persona.actualizar(nombre, apellido, edad, sexo);
+        return repository.guardar(persona);
     }
 
     @Transactional
     public void eliminar(Long id) {
-        repository.eliminar(id);  // ← ahora es Long directamente
+        buscarPorId(id);
+        repository.eliminarPorId(id);
     }
 
     public List<Persona> buscarPorSexo(String sexo) {

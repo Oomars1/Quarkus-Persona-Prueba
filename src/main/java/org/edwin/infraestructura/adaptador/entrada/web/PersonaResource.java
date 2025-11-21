@@ -6,20 +6,16 @@ import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
 import org.edwin.aplicacion.PersonaService;
 import org.edwin.dominio.modelo.Persona;
-import org.edwin.dominio.repositorio.PersonaRepository;
 import org.edwin.infraestructura.adaptador.entrada.web.dto.PersonaRequestDTO;
 import org.edwin.infraestructura.adaptador.entrada.web.dto.PersonaResponseDTO;
 import org.edwin.infraestructura.adaptador.entrada.web.mapper.PersonaMapper;
-import org.edwin.infraestructura.adaptador.salida.persistence.JpaPersonaRepository;
-import org.edwin.infraestructura.adaptador.salida.persistence.entity.PersonaEntity;
-
 import java.net.URI;
 import java.util.List;
 
 @Path("/personas")
 @Produces(MediaType.APPLICATION_JSON)
 @Consumes(MediaType.APPLICATION_JSON)
-public class PersonaResource {
+public class PersonaResource { // Adaptador de entrada - Recurso REST
 
     private final PersonaService personaService;
     private final PersonaMapper personaMapper;
@@ -45,7 +41,13 @@ public class PersonaResource {
 
     @POST
     public Response crear(@Valid PersonaRequestDTO dto) {
-        Persona creada = personaService.crear(dto);
+        // El Resource mapea el DTO a los parámetros del servicio
+        Persona creada = personaService.crear(
+                dto.getNombre(),
+                dto.getApellido(),
+                dto.getEdad(),
+                dto.getSexo()
+        );
         return Response
                 .created(URI.create("/personas/" + creada.getId()))
                 .entity(personaMapper.toResponseDto(creada))
@@ -64,7 +66,15 @@ public class PersonaResource {
     @PUT
     @Path("/{id}")
     public PersonaResponseDTO actualizar(@PathParam("id") Long id, @Valid PersonaRequestDTO dto) {
-        return personaMapper.toResponseDto(personaService.actualizar(id, dto));
+        // El Resource mapea el DTO a los parámetros del servicio
+        Persona actualizada = personaService.actualizar(
+                id,
+                dto.getNombre(),
+                dto.getApellido(),
+                dto.getEdad(),
+                dto.getSexo()
+        );
+        return personaMapper.toResponseDto(actualizada);
     }
 
     @DELETE

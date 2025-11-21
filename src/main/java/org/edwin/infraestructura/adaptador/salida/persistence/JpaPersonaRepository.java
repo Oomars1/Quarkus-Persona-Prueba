@@ -11,8 +11,8 @@ import java.util.List;
 import java.util.Optional;
 
 @ApplicationScoped
-public class JpaPersonaRepository implements PersonaRepository, PanacheRepositoryBase<PersonaEntity, Long> {
-
+public class JpaPersonaRepository implements PersonaRepository, PanacheRepositoryBase<PersonaEntity, Long> { // ← EXTENDIENDO PanacheRepositoryBase
+    //este es el traductor entre la capa de dominio y la capa de persistencia
     private final PersonaMapper mapper;
 
     public JpaPersonaRepository(PersonaMapper mapper) {
@@ -20,20 +20,27 @@ public class JpaPersonaRepository implements PersonaRepository, PanacheRepositor
     }
 
     @Override
-    public void guardar(Persona persona) {
+    public Persona guardar(Persona persona) {
         if (persona.getId() == null) {
-            mapper.toEntity(persona).persist();
+            // CREAR NUEVO
+            PersonaEntity entity = mapper.toEntity(persona);
+            entity.persistAndFlush();
+            return mapper.toDomain(entity);
         } else {
-            PersonaEntity entity = PersonaEntity.findById(persona.getId());
-            if (entity != null) {
-                mapper.updateEntityFromDomain(persona, entity);
-            }
+            // ACTUALIZAR EXISTENTE
+            PersonaEntity entity = findByIdOptional(persona.getId())   // ← Usa findByIdOptional
+                    .orElseThrow(() -> new jakarta.persistence.EntityNotFoundException(
+                            "Persona no encontrada con id: " + persona.getId()));
+
+            mapper.updateEntityFromDomain(persona, entity);
+            flush();  // método del repository
+            return mapper.toDomain(entity);
         }
     }
 
     @Override
     public Optional<Persona> porId(Long id) {
-        return PersonaEntity.<PersonaEntity>findByIdOptional(id)
+        return findByIdOptional(id)
                 .map(mapper::toDomain);
     }
 
@@ -52,7 +59,7 @@ public class JpaPersonaRepository implements PersonaRepository, PanacheRepositor
     }
 
     @Override
-    public void eliminar(Long id) {
-        PersonaEntity.deleteById(id);
+    public void eliminarPorId(Long id) {
+        deleteById(id);
     }
 }
