@@ -1,8 +1,7 @@
 package org.edwin.dominio.modelo;
 
-import lombok.*;
 
-import static java.util.Objects.requireNonNull;
+import org.edwin.dominio.vo.Sexo;
 
 /*
     * No hay ninguna importación de frameworks de infraestructura como jakarta.persistence.*(JPA),
@@ -10,36 +9,97 @@ import static java.util.Objects.requireNonNull;
     * Esto asegura que el Dominio es agnóstico a la tecnología.
  */
 
-@Getter
-@Builder(toBuilder = true)
-@AllArgsConstructor
-@NoArgsConstructor(force = true)
 public class Persona { //Entidad de dominio puro
-    private  Long id;
+    private Long id;
     private String nombre;
     private String apellido;
     private Integer edad;
-    private String sexo;
+    private Sexo sexo;
 
-    public static Persona crear(String nombre, String apellido, Integer edad, String sexo) {
-        return Persona.builder()
-                .nombre(nombre)
-                .apellido(apellido)
-                .edad(edad)
-                .sexo(sexo)
-                .build();
+    public Persona(){
+
     }
 
-    // Método de negocio para actualizar datos de la persona
-    public void actualizar(String nombre, String apellido, Integer edad, String sexo) {
-        this.nombre = requireNonNull(nombre, "Nombre no puede ser null");
-        this.apellido = requireNonNull(apellido, "Apellido no puede ser null");
+    public Persona(String nombre, String apellido, Integer edad, Sexo sexo) {
+        this.nombre = nombre;
+        this.apellido = apellido;
         this.edad = edad;
-        this.sexo = requireNonNull(sexo, "Sexo no puede ser null");
+        this.sexo = sexo;
     }
 
-    // Bonus: métodos con intención (opcional pero recomendado)
-    public void cumplirAnios() {
-        if (this.edad != null) this.edad++;
+    public Persona(Long id, String nombre, String apellido, Integer edad, Sexo sexo) {
+        this.id = id;
+        this.nombre = nombre;
+        this.apellido = apellido;
+        this.edad = edad;
+        this.sexo = sexo;
+    }
+    public void validar(){
+        if(nombre == null || nombre.isBlank()){
+            throw new IllegalArgumentException("El nombre no puede ser nulo o vacío");
+        }
+        if(nombre.length() < 2){
+            throw new IllegalArgumentException("El nombre no puede tener más de 50 caracteres");
+        }
+        if(apellido == null || apellido.isBlank()){
+            throw new IllegalArgumentException("El apellido no puede ser nulo o vacío");
+        }
+        if(apellido.length() < 2) {
+            throw new IllegalArgumentException("El apellido no puede tener más de 50 caracteres");
+        }
+        if(edad == null || edad < 0){
+            throw new IllegalArgumentException("La edad no puede ser nula o negativa");
+        }
+        if(sexo == null ){
+            throw new IllegalArgumentException("El sexo no puede ser nulo o vacío");
+        }
+    }
+
+    //Getters y Setters
+    public Long getId() {
+        return id;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
+    }
+
+    public String getNombre() {
+        return nombre;
+    }
+
+    public void setNombre(String nombre) {
+        this.nombre = nombre;
+    }
+
+    public String getApellido() {
+        return apellido;
+    }
+
+    public void setApellido(String apellido) {
+        this.apellido = apellido;
+    }
+
+    public Integer getEdad() {
+        return edad;
+    }
+
+    public void setEdad(Integer edad) {
+        this.edad = edad;
+    }
+
+    public Sexo getSexo() {
+        return sexo;
+    }
+
+    public void setSexo(Sexo sexo) {
+        this.sexo = sexo;
+    }
+
+    public void actualizar(String nombre,String apellido, Integer edad, Sexo sexo) {
+        this.nombre = nombre;
+        this.apellido = apellido;
+        this.edad = edad;
+        this.sexo = sexo;
     }
 }
